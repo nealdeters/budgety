@@ -69,7 +69,9 @@ var UIController = (function(){
     inputType: '.add__type',
     inputDescription: '.add__description',
     inputValue: '.add__value',
-    inputBtn: '.add__btn'
+    inputBtn: '.add__btn',
+    incomeContainer: '.income__list',
+    expensesContainer: '.expenses__list',
   }
 
   return {
@@ -83,7 +85,36 @@ var UIController = (function(){
     },
 
     addListItem: function(obj, type){
+      var html, newHtml, element;
 
+      // create html string with placeholder text
+      if(type === 'inc'){
+        element = DOMstrings.incomeContainer;
+        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else if(type === 'exp'){
+        element = DOMstrings.expensesContainer;
+        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+      }
+
+      // replace placeholder text with data
+      newHtml = html.replace('%id%', obj.id);
+      newHtml = newHtml.replace('%description%', obj.description);
+      newHtml = newHtml.replace('%value%', obj.value);
+
+      // insert html into the DOM
+      document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+    },
+
+    clearFields: function(){
+      var fields, fieldsArr;
+
+      fields = document.querySelectorAll(DOMstrings.inputDescription + ', '  +DOMstrings.inputValue);
+      fieldsArr = Array.prototype.slice.call(fields);
+      fieldsArr.forEach(function(field, i, array){
+        field.value = null;
+      });
+
+      fieldsArr[0].focus();
     },
 
     getDOMstrings: function(){
@@ -120,9 +151,12 @@ var controller = (function(budgetCtrl, UICtrl){
 
     // add the item to the budget controller
     newItem = budgetCtrl.addItem(input.type, input.description, input.value);
-    budgetCtrl.testing();
 
     // add the new item to the UI
+    UICtrl.addListItem(newItem, input.type);
+
+    // clear the input fields
+    UICtrl.clearFields();
 
     // calculate the budget 
 
@@ -132,7 +166,6 @@ var controller = (function(budgetCtrl, UICtrl){
 
   return {
     init: function(){
-      console.log('application started');
       setupEventListeners();
     }
   }
